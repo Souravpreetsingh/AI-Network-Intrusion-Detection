@@ -12,3 +12,5 @@ Thumbs.db
 dataset/cicids2017_synthetic.csv
 screenshots/
 reports/
+
+.vercel
