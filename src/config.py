@@ -8,7 +8,10 @@ REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 SCREENSHOTS_DIR = os.path.join(BASE_DIR, "screenshots")
 
 for d in [DATASET_DIR, MODELS_DIR, REPORTS_DIR, SCREENSHOTS_DIR]:
-    os.makedirs(d, exist_ok=True)
+    try:
+        os.makedirs(d, exist_ok=True)
+    except OSError:
+        pass
 
 DATASET_PATH = os.path.join(DATASET_DIR, "cicids2017_sample.csv")
 SYNTHETIC_DATASET_PATH = os.path.join(DATASET_DIR, "cicids2017_synthetic.csv")
