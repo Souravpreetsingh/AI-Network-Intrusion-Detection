@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.err
+venv/
+.env
+.streamlit/
+streamlit/
+.DS_Store
+Thumbs.db
+dataset/cicids2017_synthetic.csv
+screenshots/
+reports/

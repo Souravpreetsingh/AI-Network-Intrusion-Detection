@@ -1,0 +1,395 @@
+<!-- Run Prediction | Aegis AI-IDS -->
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aegis AI-IDS | Neural Traffic Prediction</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(47, 217, 244, 0.2);
+        }
+        .loading-skeleton {
+            background: linear-gradient(90deg, #1a2122 25%, #2f3638 50%, #1a2122 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .dial-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #090f11; }
+        ::-webkit-scrollbar-thumb { background: #2f3638; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2fd9f4; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#a2eeff", "primary": "#8aebff",
+                        "secondary-fixed-dim": "#4edea3", "error-container": "#93000a",
+                        "surface-container-highest": "#2f3638", "primary-container": "#22d3ee",
+                        "secondary": "#4edea3", "primary-fixed-dim": "#2fd9f4",
+                        "surface-container-low": "#161d1e", "on-tertiary-fixed": "#2a1700",
+                        "on-surface": "#dde4e5", "on-surface-variant": "#bbc9cd",
+                        "on-primary-fixed-variant": "#004e5a", "inverse-surface": "#dde4e5",
+                        "tertiary": "#ffd6a7", "error": "#ffb4ab", "surface": "#0e1416",
+                        "on-secondary-fixed-variant": "#005236", "secondary-container": "#00a572",
+                        "background": "#0e1416", "on-secondary-fixed": "#002113",
+                        "on-primary-container": "#005763", "on-primary-fixed": "#001f25",
+                        "on-tertiary": "#472a00", "outline-variant": "#3c494c",
+                        "on-error-container": "#ffdad6", "tertiary-fixed": "#ffddb8",
+                        "surface-container-lowest": "#090f11", "tertiary-container": "#ffb147",
+                        "on-tertiary-fixed-variant": "#653e00", "surface-variant": "#2f3638",
+                        "surface-tint": "#2fd9f4", "on-background": "#dde4e5",
+                        "on-secondary-container": "#00311f", "on-secondary": "#003824",
+                        "outline": "#859397", "surface-bright": "#343a3c",
+                        "on-tertiary-container": "#704500", "inverse-primary": "#006877",
+                        "on-primary": "#00363e", "surface-container": "#1a2122",
+                        "surface-dim": "#0e1416", "secondary-fixed": "#6ffbbe",
+                        "on-error": "#690005", "tertiary-fixed-dim": "#ffb95f",
+                        "surface-container-high": "#242b2d", "inverse-on-surface": "#2b3233"
+                    },
+                    "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                    "spacing": { "header-height": "64px", "unit": "4px", "gutter": "24px", "sidebar-width": "260px", "stack-gap": "16px", "container-padding": "32px" },
+                    "fontFamily": { "code-md": ["JetBrains Mono"], "label-caps": ["JetBrains Mono"], "headline-md": ["Inter"], "headline-lg": ["Inter"], "body-sm": ["Inter"], "code-sm": ["JetBrains Mono"], "body-md": ["Inter"] },
+                    "fontSize": { "code-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}], "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}], "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}], "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}], "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}], "code-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}], "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen">
+<header class="fixed top-0 w-full h-header-height z-50 bg-surface/80 backdrop-blur-md border-b border-white/10 shadow-[0_0_15px_rgba(47,217,244,0.1)]">
+<div class="flex justify-between items-center px-gutter h-full max-w-[1600px] mx-auto">
+<div class="flex items-center gap-4">
+<span class="font-headline-lg text-headline-lg font-bold text-primary tracking-tighter">Aegis AI-IDS</span>
+</div>
+<div class="flex items-center gap-stack-gap">
+<div class="hidden md:flex bg-surface-container-low px-4 py-2 rounded-lg border border-white/5">
+<span class="material-symbols-outlined text-primary text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64" placeholder="Search logs..." type="text"/>
+</div>
+<div class="flex gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">settings</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">terminal</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="/>
+</div>
+</div>
+</div>
+</header>
+<aside class="fixed left-0 top-header-height w-sidebar-width h-[calc(100vh-header-height)] bg-surface-container-low border-r border-white/5 flex flex-col py-stack-gap">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">hub</span>
+</div>
+<div>
+<p class="font-headline-md text-[14px] text-primary">Core Neural Engine</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">V3.4.1 Active</p>
+</div>
+</div>
+</div>
+<nav class="flex-grow">
+<ul class="space-y-1 px-2">
+<li><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-white/5 transition-all duration-300" href="/"><span class="material-symbols-outlined">dashboard</span><span class="font-label-caps text-label-caps">Home</span></a></li>
+<li><a class="flex items-center gap-3 px-4 py-3 rounded text-primary bg-primary/10 border-r-2 border-primary shadow-[inset_-10px_0_15px_-10px_rgba(47,217,244,0.3)]" href="/prediction"><span class="material-symbols-outlined">psychology</span><span class="font-label-caps text-label-caps">Prediction</span></a></li>
+<li><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-white/5 transition-all duration-300" href="/dataset"><span class="material-symbols-outlined">database</span><span class="font-label-caps text-label-caps">Dataset</span></a></li>
+<li><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-white/5 transition-all duration-300" href="/analytics"><span class="material-symbols-outlined">assessment</span><span class="font-label-caps text-label-caps">Reports</span></a></li>
+<li><a class="flex items-center gap-3 px-4 py-3 rounded text-on-surface-variant hover:bg-white/5 transition-all duration-300" href="/about"><span class="material-symbols-outlined">info</span><span class="font-label-caps text-label-caps">About</span></a></li>
+</ul>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded shadow-[0_0_20px_rgba(138,235,255,0.3)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">radar</span>
+                Scan Network
+            </button>
+</div>
+</aside>
+<main class="ml-sidebar-width pt-header-height pb-[calc(unit*8)] min-h-screen">
+<div class="max-w-[1600px] mx-auto p-container-padding">
+<div class="flex flex-col gap-8">
+<div class="flex flex-col gap-2">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Neural Traffic Prediction</h1>
+<p class="text-on-surface-variant font-body-md max-w-2xl">Deploy the Aegis AI model to analyze network packet headers. Input the raw transmission metrics below to receive a real-time risk assessment.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<div class="lg:col-span-8">
+<section class="glass-card rounded-xl p-8 shadow-xl">
+<form class="grid grid-cols-1 md:grid-cols-2 gap-6" id="predictionForm">
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-primary opacity-80">Duration (seconds)</label>
+<input class="w-full bg-surface-container-lowest border border-white/10 rounded-lg p-3 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" id="duration" placeholder="e.g. 120.0" required type="number" step="0.1"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-primary opacity-80">Number of Packets</label>
+<input class="w-full bg-surface-container-lowest border border-white/10 rounded-lg p-3 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" id="packets" placeholder="e.g. 500" required type="number"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-primary opacity-80">Number of Bytes</label>
+<input class="w-full bg-surface-container-lowest border border-white/10 rounded-lg p-3 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" id="bytes" placeholder="e.g. 1024000" required type="number"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-primary opacity-80">Protocol Type</label>
+<select class="w-full bg-surface-container-lowest border border-white/10 rounded-lg p-3 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all appearance-none" id="protocol">
+<option value="TCP">TCP (Transmission Control)</option>
+<option value="UDP">UDP (User Datagram)</option>
+<option value="ICMP">ICMP (Internet Control)</option>
+<option value="HTTP">HTTP</option>
+<option value="DNS">DNS</option>
+<option value="FTP">FTP</option>
+<option value="SSH">SSH</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-primary opacity-80">Source Port</label>
+<input class="w-full bg-surface-container-lowest border border-white/10 rounded-lg p-3 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" id="src_port" placeholder="e.g. 54321" required type="number"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-primary opacity-80">Destination Port</label>
+<input class="w-full bg-surface-container-lowest border border-white/10 rounded-lg p-3 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary/30 outline-none transition-all" id="dst_port" placeholder="e.g. 80" required type="number"/>
+</div>
+<div class="md:col-span-2 pt-4">
+<div id="modelStatus" class="mb-4 text-sm text-on-surface-variant"></div>
+<button class="w-full bg-primary text-on-primary font-bold py-4 rounded-xl shadow-lg hover:brightness-110 active:scale-[0.98] transition-all relative overflow-hidden group" id="runPredictionBtn" type="submit">
+<span class="relative z-10 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">bolt</span>
+                                            Run Prediction
+                                        </span>
+</button>
+</div>
+</form>
+</section>
+</div>
+<div class="lg:col-span-4">
+<div class="hidden" id="resultContainer">
+<section class="glass-card rounded-xl p-8 h-full flex flex-col items-center justify-center text-center gap-6 border-primary/20 glow-cyan">
+<div class="dial-container">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#1a2122" stroke-width="8"></circle>
+<circle class="transition-all duration-[1.5s] ease-out" cx="50" cy="50" fill="none" id="dialProgress" r="45" stroke="#8aebff" stroke-dasharray="283" stroke-dashoffset="283" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-code-md text-headline-md text-primary" id="confidenceVal">0%</span>
+</div>
+</div>
+<div class="space-y-2">
+<h3 class="font-headline-md text-headline-md" id="resultStatus">Processing...</h3>
+<p class="text-on-surface-variant body-sm" id="resultDesc">Analysis of packet signatures complete.</p>
+</div>
+<div class="w-full h-[1px] bg-white/10"></div>
+<div class="flex flex-col gap-2 w-full">
+<div class="flex justify-between text-[12px] font-code-sm">
+<span class="text-on-surface-variant">Model Engine</span>
+<span class="text-secondary" id="modelEngine">v4-neural-alpha</span>
+</div>
+<div class="flex justify-between text-[12px] font-code-sm">
+<span class="text-on-surface-variant">Response Latency</span>
+<span class="text-secondary" id="responseLatency">2.4ms</span>
+</div>
+</div>
+</section>
+</div>
+<div class="hidden flex flex-col gap-6 h-full" id="skeletonLoader">
+<div class="glass-card rounded-xl p-8 h-full space-y-8">
+<div class="w-32 h-32 rounded-full loading-skeleton mx-auto"></div>
+<div class="space-y-4">
+<div class="h-8 w-3/4 loading-skeleton mx-auto rounded"></div>
+<div class="h-4 w-full loading-skeleton rounded"></div>
+<div class="h-4 w-5/6 loading-skeleton mx-auto rounded"></div>
+</div>
+<div class="pt-8 space-y-2">
+<div class="h-4 w-full loading-skeleton rounded"></div>
+<div class="h-4 w-full loading-skeleton rounded"></div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center glass-card rounded-xl p-8 h-full border-dashed border-white/10" id="emptyState">
+<span class="material-symbols-outlined text-[64px] text-on-surface-variant opacity-20 mb-4">insights</span>
+<p class="text-on-surface-variant font-body-md text-center">Ready for analysis. Fill out the form and click "Run Prediction" to start neural scan.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="fixed bottom-0 right-0 w-[calc(100%-sidebar-width)] h-[32px] bg-surface-container-lowest border-t border-white/5 flex justify-between items-center px-gutter z-40">
+<div class="flex items-center gap-6">
+<span class="font-code-sm text-code-sm text-on-surface-variant">&copy; 2024 Aegis Cybersecurity Intelligence</span>
+</div>
+<div class="flex gap-8">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed shadow-[0_0_5px_rgba(78,222,163,0.5)]"></div>
+<span class="font-code-sm text-code-sm text-secondary" id="systemStatus">System: Stable</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Latency: <span id="footerLatency">14</span>ms</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Uptime: 99.9%</span>
+</div>
+</footer>
+<script>
+        const form = document.getElementById('predictionForm');
+        const runBtn = document.getElementById('runPredictionBtn');
+        const emptyState = document.getElementById('emptyState');
+        const skeletonLoader = document.getElementById('skeletonLoader');
+        const resultContainer = document.getElementById('resultContainer');
+        const dialProgress = document.getElementById('dialProgress');
+        const confidenceVal = document.getElementById('confidenceVal');
+        const resultStatus = document.getElementById('resultStatus');
+        const resultDesc = document.getElementById('resultDesc');
+        const modelEngine = document.getElementById('modelEngine');
+        const responseLatency = document.getElementById('responseLatency');
+        const modelStatusEl = document.getElementById('modelStatus');
+
+        async function checkModelStatus() {
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                if (data.model_loaded) {
+                    modelStatusEl.innerHTML = '<span class="text-secondary">&#10004; Model loaded and ready</span>';
+                } else if (data.model_exists) {
+                    modelStatusEl.innerHTML = '<span class="text-error">&#9888; Model file exists but failed to load. Try running: <code class="font-code-sm">python run.py train</code></span>';
+                } else {
+                    modelStatusEl.innerHTML = '<span class="text-error">&#9888; No trained model found. Run: <code class="font-code-sm">python run.py train</code></span>';
+                }
+            } catch(e) {
+                modelStatusEl.innerHTML = '<span class="text-error">&#9888; Backend API not reachable</span>';
+            }
+        }
+        checkModelStatus();
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const duration = document.getElementById('duration').value || 120;
+            const packets = document.getElementById('packets').value || 500;
+            const bytes = document.getElementById('bytes').value || 1024000;
+            const protocol = document.getElementById('protocol').value;
+            const src_port = document.getElementById('src_port').value || 54321;
+            const dst_port = document.getElementById('dst_port').value || 80;
+
+            emptyState.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            skeletonLoader.classList.remove('hidden');
+            runBtn.disabled = true;
+            runBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            runBtn.innerHTML = `
+                <span class="relative z-10 flex items-center justify-center gap-3">
+                    <svg class="animate-spin h-5 w-5 text-on-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing...
+                </span>
+            `;
+
+            const startTime = performance.now();
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        duration: parseFloat(duration),
+                        packets: parseInt(packets),
+                        bytes: parseInt(bytes),
+                        protocol: protocol,
+                        src_port: parseInt(src_port),
+                        dst_port: parseInt(dst_port)
+                    })
+                });
+
+                const result = await response.json();
+                const latency = ((performance.now() - startTime) / 1000).toFixed(1);
+
+                skeletonLoader.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+
+                if (result.error) {
+                    resultStatus.innerText = 'Model Not Available';
+                    resultStatus.className = 'font-headline-md text-headline-md text-error';
+                    resultDesc.innerHTML = result.error.replace(/\n/g, '<br>');
+                    return;
+                }
+
+                const isAttack = result.prediction === 1;
+                const confidence = result.confidence || 85;
+                const offset = 283 - (confidence / 100) * 283;
+
+                setTimeout(() => {
+                    dialProgress.style.strokeDashoffset = offset;
+                }, 100);
+                confidenceVal.innerText = Math.round(confidence) + '%';
+
+                if (isAttack) {
+                    resultStatus.innerText = 'Suspicious Activity Detected';
+                    resultStatus.className = 'font-headline-md text-headline-md text-error';
+                    resultDesc.innerText = 'Neural patterns indicate a potential threat. Node isolation recommended.';
+                    dialProgress.style.stroke = '#ffb4ab';
+                    confidenceVal.style.color = '#ffb4ab';
+                } else {
+                    resultStatus.innerText = 'Normal Traffic';
+                    resultStatus.className = 'font-headline-md text-headline-md text-secondary';
+                    resultDesc.innerText = 'Packet analysis matches standard user behavior patterns. No immediate threat detected.';
+                    dialProgress.style.stroke = '#4edea3';
+                    confidenceVal.style.color = '#4edea3';
+                }
+
+                modelEngine.innerText = result.model_used || 'v4-neural-alpha';
+                responseLatency.innerText = latency + 'ms';
+
+            } catch (err) {
+                skeletonLoader.classList.add('hidden');
+                resultContainer.classList.remove('hidden');
+                resultStatus.innerText = 'API Error';
+                resultStatus.className = 'font-headline-md text-headline-md text-error';
+                resultDesc.innerText = 'Failed to connect to backend API. Ensure the Flask server is running.';
+                dialProgress.style.stroke = '#ffb4ab';
+                confidenceVal.style.color = '#ffb4ab';
+                confidenceVal.innerText = '--';
+            }
+
+            runBtn.disabled = false;
+            runBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            runBtn.innerHTML = `
+                <span class="relative z-10 flex items-center justify-center gap-3">
+                    <span class="material-symbols-outlined">bolt</span>
+                    Run Prediction
+                </span>
+            `;
+        });
+
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.querySelector('label')?.classList.add('text-primary');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.querySelector('label')?.classList.remove('text-primary');
+            });
+        });
+    </script>
+</body></html>

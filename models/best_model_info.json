@@ -1,0 +1,10 @@
+{
+  "best_model": "Decision Tree",
+  "metrics": {
+    "accuracy": 0.735,
+    "precision": 0.5278810408921933,
+    "recall": 0.5071428571428571,
+    "f1_score": 0.517304189435337,
+    "roc_auc": 0.6658953373015873
+  }
+}
